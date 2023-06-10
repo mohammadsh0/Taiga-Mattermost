@@ -1,0 +1,28 @@
+{
+  "name": "taiga_matter",
+  "version": "1.0.0",
+  "description": "1. Connecting to mattermost api and sending messages about task changes 2. Creating tasks in taiga from mattermost",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mohammadsh0/Taiga_Matter.git"
+  },
+  "keywords": [
+    "Taiga",
+    "Mattermost"
+  ],
+  "author": "Mohammad Shakeri",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mohammadsh0/Taiga_Matter/issues"
+  },
+  "homepage": "https://github.com/mohammadsh0/Taiga_Matter#readme",
+  "dependencies": {
+    "dotenv": "^16.1.4",
+    "express": "^4.18.2",
+    "mongoose": "^7.2.2"
+  }
+}
