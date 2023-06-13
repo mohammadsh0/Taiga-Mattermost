@@ -63,7 +63,7 @@ class TaigaMatter {
         await this.matter.getBots(mAT)
         // This peice requires fresh Mattermost install to test!
         if (!this.matter.hasBot) {
-            const taigaBot = await this.matter.createBot(mAT)
+            const taigaBot = await this.matter.createBot(mAT);
             let taigaBotId = JSON.parse(taigaBot['user_id']);
             this.matter.addUserToTeam(mAT, this.matter.teams[0]['id'], taigaBotId);
             const tBotAccToken = await this.matter.createAccessToken(mAT, taigaBotId, 'Taiga Messenger')
@@ -80,7 +80,7 @@ class TaigaMatter {
                 return tBAT;
             }
             else {
-                const tBotAccToken = await this.matter.createAccessToken(at, this.matter.taigaBotId, 'Taiga Messenger')
+                const tBotAccToken = await this.matter.createAccessToken(mAT, this.matter.taigaBotId, 'Taiga Messenger');
                 const botAccessToken = tBotAccToken[2];
 
                 saveBot('taiga', this.matter.taigaBotId, botAccessToken);

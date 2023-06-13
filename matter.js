@@ -27,7 +27,7 @@ class MatterMost {
     }
 
     /**
-     * Gets authorization & refresh tokens using login_id and password
+     * Gets authorization token using login_id and password
      * that were provided during initialization.
      */
     async getAuthToken() {

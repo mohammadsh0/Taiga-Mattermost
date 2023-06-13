@@ -20,9 +20,9 @@ class Taiga {
      */
     constructor(url, userName, password) {
         _authPost.set(this, JSON.stringify({
-            'password': userName,
+            'password': password,
             'type': 'normal',
-            'username': password
+            'username': userName
         }));
         _url.set(this, url);
     }

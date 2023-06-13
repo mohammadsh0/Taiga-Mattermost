@@ -3,8 +3,10 @@ This app uses taiga webhooks to create channels in [Mattermost](https://mattermo
 
 ## Installation
 ### Install mongoDB
-
-
+### Enable admin access token in mattermost
+Enable personal access tokens in System Console > Integrations > Integration Management.
+### Enable bot creation in mattermost
+Enable Bot Account Creation in System Console > Integrations > Bot Accounts.
 ### Clone
 1. Clone repo
 2. go to project folder
