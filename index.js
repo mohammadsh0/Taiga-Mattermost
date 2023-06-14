@@ -14,7 +14,7 @@ const mattermostPassword= process.env.mattermostPassword;
 
 const taiga = new Taiga(`${taigaUrl}/api/v1`, taigaUsername, taigaPassword);
 const matter = new MatterMost(`${mattermostUrl}/api/v4`, mattermostUsername, mattermostPassword);
-const hookUrl = "http://localhost:3000/api/webhooks";
+const hookUrl = process.env.hookUrl;
 
 const tm = new TaigaMatter(hookUrl, taiga, matter);
 

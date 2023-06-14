@@ -8,6 +8,7 @@ const _url = new WeakMap();
 const _projects = new WeakMap();
 const _hooks = new WeakMap();
 const _users = new WeakMap();
+const _user = new WeakMap();
 const _tempData = new WeakMap(); // Used to return data from async functions. Not sure if it's safe!
 
 
@@ -78,6 +79,17 @@ class Taiga {
             .catch((err) => {console.log(err.message)});
     }
 
+    async getUser(auth_token, userId, ) {
+        const options = utils.options('GET', auth_token);
+
+        await utils.httpRequester(`${_url.get(this)}/users/${userId}`, options)
+            .then((data) => {
+                _user.set(this, JSON.parse(data));
+            })
+            .catch((err) => {console.log(err.message)});
+        return _user.get(this)
+    }
+
     /**
      * Gets all Taiga Projects
      * @param {String} auth_token Taiga Authorization header
@@ -131,7 +143,7 @@ class Taiga {
             })
             .catch((err) => {console.log(err.message)});
         return _tempData.get(this);
-        }
+    }
 
     get auth_key() {
         return _auth_key.get(this);

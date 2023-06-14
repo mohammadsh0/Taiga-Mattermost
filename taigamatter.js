@@ -2,6 +2,7 @@ const {saveUserToken, getAdminToken, saveBot, getBot} = require('./db');
 
 
 const _hookurl = new WeakMap();
+const _taigaUsers = new WeakMap();
 
 class TaigaMatter {
     constructor(hookUrl, taiga, matter) {
@@ -64,7 +65,8 @@ class TaigaMatter {
         // This peice requires fresh Mattermost install to test!
         if (!this.matter.hasBot) {
             const taigaBot = await this.matter.createBot(mAT);
-            let taigaBotId = JSON.parse(taigaBot['user_id']);
+            let taigaBotId = JSON.parse(taigaBot)['user_id'];
+            await this.matter.getTeams(mAT);
             this.matter.addUserToTeam(mAT, this.matter.teams[0]['id'], taigaBotId);
             const tBotAccToken = await this.matter.createAccessToken(mAT, taigaBotId, 'Taiga Messenger')
             const botAccessToken = tBotAccToken[2];
@@ -118,26 +120,34 @@ class TaigaMatter {
 
     /**
      * Maps a list of taiga user's userId's to a list of the same users in mattermost
-     * based on having the same username in both apps and returns mattermost userIds
+     * based on having the same email address in both apps and returns mattermost userIds
      * of the taigaUsers.
      * @param {[Number]} taigaUsers userdId's of a Taiga project
-     * @returns userId's of mattermost users that have the same userName as Taiga users
+     * @returns userId's of mattermost users that have the same email address as Taiga users
      */
-    #mapTaigaIdToMatterId(taigaUsers) {
-        let taigaUserNames = this.taiga.users
-            .filter((user) => {
-            if (taigaUsers.includes(user['id']))
-                return user['username'];
+
+    async #mapTaigaIdToMatterId(taigaUsers) {
+        _taigaUsers.set(this, []);
+
+        for (let userId of taigaUsers) {
+            const user = await this.taiga.getUser(this.taiga.auth_key, userId);
+            const newUsers = [..._taigaUsers.get(this), user];
+            _taigaUsers.set(this, newUsers);
+        }
+
+        const taigaUserEmails = _taigaUsers.get(this)
+            .map((user) => {
+                return user['email']
             })
-            .map((user) => {return user['username']});
-        // console.log(taigaUserNames)
 
         let matterUserIds = this.matter.users
             .filter((user) => {
-            if (taigaUserNames.includes(user['username'])) {return user;}
-            })
-            .map((user) => {return user['id'];});
-        // console.log(matterUserIds);
+            if (taigaUserEmails.includes(user['email'])) {
+                return user;
+            }})
+            .map((user) => {
+                return user['id'];
+            });
 
         return matterUserIds;
     }
@@ -175,6 +185,20 @@ class TaigaMatter {
         }
     }
 
+    mapprojectNameToChannelId(projectName) {
+        const channelId = this.matter.channels
+            .filter((channel) => {
+            if (channel['display_name'] == projectName) {
+                return channel;
+            }
+            })
+            .map((channel) => {
+                return channel['id'];
+            })
+        for (let id of channelId)
+            if (id) return id;
+    }
+
     /**
      * Create channel for Taiga projects that have a channel.
      * @param {String} mAT Mattermost Admin Access Token
@@ -190,6 +214,7 @@ class TaigaMatter {
 
         if (!projectHasChannel) {
             await this.matter.createChannel(mAT, teamId, project['slug'], project['name'], 'P');
+            await this.matter.getChannels(mAT);
         }
     }
 
@@ -234,15 +259,15 @@ class TaigaMatter {
      * @param {String} mAT Mattermost Admin Access Token
      * @param {JSON} project The project to check it's members in mattermost channel
      */
-    #addNeededMembers(mAT, project) {
+    async #addNeededMembers(mAT, project) {
         let projectMembers = this.taiga.users
-        .map((user) => {
+        .filter((user) => {
         if (project['members'].includes(user['id'])) {
-            return user['id'];
+            return user;
         }
         })
-        .filter((id) => {
-            if (id) return id;
+        .map((user) => {
+            return user['id'];
         });
 
         // Gets the channel of the project
@@ -254,7 +279,7 @@ class TaigaMatter {
                 return channel['id'];
             })
 
-        let taigausersInMattermost = this.#mapTaigaIdToMatterId(projectMembers);
+        let taigausersInMattermost = await this.#mapTaigaIdToMatterId(projectMembers);
         this.#addUsersToChannel(mAT, [...taigausersInMattermost], projectChannel);
     }
 
@@ -268,7 +293,7 @@ class TaigaMatter {
         for (let project of this.taiga.projects) {
             await this.#addNeededHooks(project);
             await this.#makeNeededChannels(mAT, project);
-            this.#addNeededMembers(mAT, project);
+            await this.#addNeededMembers(mAT, project);
         }
         this.#addBotToChannels(mAT);
     }

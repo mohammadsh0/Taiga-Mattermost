@@ -86,7 +86,7 @@ class MatterMost {
             .then((data) => {
                 _tempData.set(this, data);
             });
-        return _tempData.get(this)
+        return _tempData.get(this);
     }
 
     /**
@@ -290,7 +290,6 @@ class MatterMost {
     }
 
     get teams() {
-        // console.log(JSON.parse(_teams.get(this)))
         return JSON.parse(_teams.get(this));
     }
 

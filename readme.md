@@ -27,6 +27,7 @@ taigaUrl=http[s]://1.2.3.4:port
 mattermostUserName=someone@somewhere.com
 mattermostPassword=PASSWORD
 mattermostUrl=http://1.2.3.4:port
+hookUrl="http[s]://1.2.3.4:5678/api/webhooks"
 
 ```
 ### Running the application
